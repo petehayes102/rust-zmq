@@ -324,13 +324,14 @@ impl Drop for Socket {
 }
 
 impl Socket {
-    /// Return the raw socket pointer.
+    /// Consume the Socket and return the raw socket pointer.
     ///
     /// Failure to close the socket manually or call `from_raw` will
     /// lead to a memory leak.
-    pub fn to_raw(&mut self) -> *mut c_void {
-        self.persistent = true;
-        self.sock
+    pub fn to_raw(self) -> *mut c_void {
+        let mut sock = self;
+        sock.persistent = true;
+        sock.sock
     }
 
     /// Create a socket from a raw socket pointer.
@@ -340,6 +341,14 @@ impl Socket {
             closed: false,
             persistent: false,
         }
+    }
+
+    /// Borrow the raw socket pointer without disabling destructor.
+    ///
+    /// If the Socket goes out of scope, this will lead to a dangling
+    /// pointer, so use with care!
+    pub fn borrow_raw(&self) -> *mut c_void {
+        self.sock
     }
 
     /// Accept connections on a socket.
