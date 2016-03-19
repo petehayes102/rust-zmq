@@ -316,13 +316,14 @@ impl Drop for Socket {
 }
 
 impl Socket {
-    /// Return the raw socket pointer.
+    /// Consume the Socket and return the raw socket pointer.
     ///
     /// Failure to close the socket manually or call `from_raw` will
     /// lead to a memory leak.
-    pub fn to_raw(&mut self) -> *mut libc::c_void {
-        self.persistent = true;
-        self.sock
+    pub fn to_raw(self) -> *mut libc::c_void {
+        let mut sock = self;
+        sock.persistent = true;
+        sock.sock
     }
 
     /// Create a socket from a raw socket pointer.
@@ -778,7 +779,7 @@ impl fmt::Debug for Error {
 
 macro_rules! getsockopt_num(
     ($name:ident, $c_ty:ty, $ty:ty) => (
-        #[allow(trivial_casts)]    
+        #[allow(trivial_casts)]
         fn $name(sock: *mut libc::c_void, opt: c_int) -> Result<$ty, Error> {
             unsafe {
                 let mut value: $c_ty = 0;
