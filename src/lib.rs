@@ -273,6 +273,14 @@ impl Context {
         }
     }
 
+    /// Borrow the raw context pointer.
+    ///
+    /// If the Context goes out of scope, this will lead to a dangling
+    /// pointer, so use with care!
+    pub fn borrow_raw(&self) -> *mut c_void {
+        self.ctx
+    }
+
     pub fn socket(&mut self, socket_type: SocketType) -> Result<Socket> {
         let sock = unsafe { zmq_sys::zmq_socket(self.ctx, socket_type as c_int) };
 
