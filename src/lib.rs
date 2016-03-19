@@ -335,6 +335,14 @@ impl Socket {
         }
     }
 
+    /// Borrow the raw socket pointer without disabling destructor.
+    ///
+    /// If the Socket goes out of scope, this will lead to a dangling
+    /// pointer, so use with care!
+    pub fn borrow_raw(&self) -> *mut c_void {
+        self.sock
+    }
+
     /// Accept connections on a socket.
     pub fn bind(&mut self, endpoint: &str) -> Result<(), Error> {
         let rc = unsafe { zmq_sys::zmq_bind(self.sock,
